@@ -1,6 +1,7 @@
 package uniandes.lym.robot.control;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 
 import javax.swing.SwingUtilities;
 
@@ -19,9 +20,25 @@ public class Interpreter   {
 	 */
 	private RobotWorldDec world;   
 	
+	private class Tupla {
+		
+		String nombre;
+		int cant;
+		
+		public Tupla(String nombre){
+			this.nombre = nombre;
+		}
+		
+		void sumar(int cantidad) {
+			cant += cantidad;
+		}
+	}
+	
+	private ArrayList<Tupla> tuplas;
 	
 	public Interpreter()
 	  {
+		tuplas = new ArrayList<Tupla>();
 	  }
 
 
