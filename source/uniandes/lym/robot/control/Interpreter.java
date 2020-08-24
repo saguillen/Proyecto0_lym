@@ -8,7 +8,11 @@ import javax.swing.SwingUtilities;
 
 import uniandes.lym.robot.kernel.*;
 
+//Integrantes: - Santiago Mora Felix_seccion_1
 
+//				- Sergio Andres Guillen Fonseca_seccion_2
+
+//IMPORTANTE: leer Readme.txt en la carpeta lib.
 
 /**
  * Receives commands and relays them to the Robot. 
@@ -154,7 +158,7 @@ public class Interpreter   {
 
 	}
 
-	private void metodoCmds(String[] cmds) {
+	private void metodoCmds(String[] cmds) throws Error, Exception {
 
 		Tupla t = null;
 
@@ -203,7 +207,7 @@ public class Interpreter   {
 
 
 
-			}else if (comando.startsWith("move"))
+			}else if (comando.startsWith("move")&&!comando.contains("Dir"))
 			{
 				int numero = 0;
 				comando= comando.substring(comando.indexOf("(")+1,comando.indexOf(")"));
@@ -388,22 +392,22 @@ public class Interpreter   {
 				}
 				if(cant>0) {
 					if(partes[1].equals("Balloons")) {
-							try {
-								world.grabBalloons(cant);
-							}
-							catch(Exception e) {
-								System.out.println("Jsjsjsj hay un error. F.");
-							}
-						
+						try {
+							world.grabBalloons(cant);
+						}
+						catch(Exception e) {
+							System.out.println("Jsjsjsj hay un error. F.");
+						}
+
 					}
 					else if(partes[1].equals("Chips")){
-							try {
-								world.pickChips(cant);
-							}
-							catch (Exception e) {
-								System.out.println("Jsjsjs tienes un error k gei.");
-							}
-						
+						try {
+							world.pickChips(cant);
+						}
+						catch (Exception e) {
+							System.out.println("Jsjsjs tienes un error k gei.");
+						}
+
 					}
 					else {
 						System.out.println("\"Chips\" or \"Balloons\" expected. Got " + partes[1]);
@@ -411,24 +415,482 @@ public class Interpreter   {
 				}
 			}
 			else if(comando.startsWith("skip")) continue;
-			
-			//			else if( comando.startsWith(turn))
-			//			Ejemplo
 
-			//ROBOT_R
-			//VARS a, b
-			//BEGIN
-			//assign(a ,3);
-			//assign(b ,1);
-			//turn(right);
-			//move(b);
-			//END
-			//System.out.println(comando);
+			else if(comando.startsWith("moveDir"))
+			{
+				comando = comando.substring(comando.indexOf('(') + 1, comando.indexOf(')'));
+
+				String[] partes = comando.split(",");
+
+				boolean esVariable = false;
+
+				int cant = 0;
+				Iterator<Tupla> iter = tuplas.iterator();
+				Tupla actual;
+				while(iter.hasNext() && !esVariable) {
+					actual = iter.next();
+					if(actual.nombre.equals(partes[0])){
+						cant = actual.cant;
+						esVariable = true;
+					}
+				}
+				if(!esVariable) {
+					try {
+						cant = Integer.parseInt(partes[0]);
+					}
+					catch(Exception e) {
+						System.out.println("Number or variable name expected.");
+					}
+				}
+				if(cant>0) {
+					if(partes[1].equals("front")) {
+
+						world.moveForward(cant);
 
 
+					}
+					else if(partes[1].equals("right"))
+					{
+						world.turnRight();
+						world.moveForward(cant);
+						world.turnRight();
+						world.turnRight();
+						world.turnRight();
+					}
+					else if(partes[1].equals("left"))
+					{
+						world.turnRight();
+						world.turnRight();
+						world.turnRight();
+						world.moveForward(cant);
+						world.turnRight();
+					}
+					else if (partes[1].equals("back"))
+					{
+						world.turnRight();
+						world.turnRight();
+						world.moveForward(cant);
+						world.turnRight();
+						world.turnRight();
 
+					}else System.out.println("Impossible to move n Steps Dir");
+
+				}
+
+
+			}else if(comando.contains("InDir"))
+			{
+				comando = comando.substring(comando.indexOf('(') + 1, comando.indexOf(')'));
+
+				String[] partes = comando.split(",");
+
+				boolean esVariable = false;
+
+				int cant = 0;
+				Iterator<Tupla> iter = tuplas.iterator();
+				Tupla actual;
+				while(iter.hasNext() && !esVariable) {
+					actual = iter.next();
+					if(actual.nombre.equals(partes[0])){
+						cant = actual.cant;
+						esVariable = true;
+					}
+				}
+				if(!esVariable) {
+					try {
+						cant = Integer.parseInt(partes[0]);
+					}
+					catch(Exception e) {
+						System.out.println("Number or variable name expected.");
+					}
+				}
+				System.out.println("Si es numero");
+				if(cant>0)
+				{
+					if(partes[1].equals("north"))
+					{
+						if(world.facingEast())
+						{
+							world.turnRight();
+							world.turnRight();
+							world.turnRight();
+							world.moveForward(cant);
+						}
+
+						else if(world.facingSouth())
+						{
+							world.turnRight();
+							world.turnRight();
+							world.moveForward(cant);
+						}
+						else if(world.facingWest())
+						{
+							world.turnRight();
+							world.moveForward(cant);
+						}
+						else
+						{
+							world.moveForward(cant);
+						}
+					}else if(partes[1].equals("south"))
+					{
+						if(world.facingEast())
+						{
+							world.turnRight();
+							world.moveForward(cant);
+						}else if(world.facingNorth())
+						{
+							world.turnRight();
+							world.turnRight();
+							world.moveForward(cant);
+						}else if(world.facingWest())
+						{
+							world.turnRight();
+							world.turnRight();
+							world.turnRight();
+							world.moveForward(cant);
+						}
+						else{world.moveForward(cant);}
+
+					}else if(partes[1].equals("east"))
+					{
+						if(world.facingSouth())
+						{
+							world.turnRight();
+							world.turnRight();
+							world.turnRight();
+							world.moveForward(cant);
+						}else if(world.facingWest())
+						{
+							world.turnRight();
+							world.turnRight();
+							world.moveForward(cant);
+						}else if(world.facingNorth())
+						{
+							world.turnRight();
+							world.moveForward(cant);
+						}else{
+							world.moveForward(cant);
+						}
+					}else if(partes[1].equals("west"))
+					{
+						if(world.facingNorth())
+						{
+							world.turnRight();
+							world.turnRight();
+							world.turnRight();
+							world.moveForward(cant);
+						}else if(world.facingEast())
+						{
+							world.turnRight();
+							world.turnRight();
+							world.moveForward(cant);
+						}else if(world.facingSouth())
+						{
+							world.turnRight();
+							world.moveForward(cant);
+						}else{
+							world.moveForward(cant);}
+					}
+					else{System.out.println("Not a direction");};
+
+
+				}
+				//			else if( comando.startsWith(turn))
+				//			Ejemplo
+
+				//				ROBOT_R
+				//				VARS a, b
+				//				BEGIN
+				//				assign(a ,3);
+				//				assign(b ,1);
+				//				turn(right);
+				//				move(b);
+				//				moveInDir(b,south);
+				//				END
+				//System.out.println(comando);
+			}else if(comando.startsWith("facing"))
+			{
+				comando = comando.substring(comando.indexOf('(') + 1, comando.indexOf(')'));
+				boolean apunta = facing(comando);
+				//				comando = apunta;
+			}
+			else if(comando.startsWith("{")&&comando.startsWith("}"))
+			{
+				try{
+					comando = comando.substring(comando.indexOf('{') + 1, comando.indexOf('}'));
+					String[] partes = comando.split(";");
+					while(checkCond(partes[1],partes))
+					{
+						metodoCmds(partes);
+					}
+				}
+				catch (Exception e)
+				{
+					e.getMessage();
+				}
+
+			}
 		}
+	}
+
+	public boolean checkCond(String cond, String[] comandos)
+	{
+		boolean condicion= false;
+
+		if(cond.startsWith("facing"))
+		{
+			cond = cond.substring(cond.indexOf('(') + 1, cond.indexOf(')'));
+			condicion = facing(cond);
+		}
+		if(cond.startsWith("move")&&!cond.contains("Dir")){
+			cond = cond.substring(cond.indexOf('(') + 1, cond.indexOf(')'));
+			condicion = checkMove(cond);
+		}
+		if(cond.contains("InDir"))
+		{
+			cond = cond.substring(cond.indexOf('(') + 1, cond.indexOf(')'));
+
+			String[] partes = cond.split(",");
+
+			boolean esVariable = false;
+
+			int cant = 0;
+			Iterator<Tupla> iter = tuplas.iterator();
+			Tupla actual;
+			while(iter.hasNext() && !esVariable) {
+				actual = iter.next();
+				if(actual.nombre.equals(partes[0])){
+					cant = actual.cant;
+					esVariable = true;
+				}
+			}
+			if(!esVariable) {
+				try {
+					cant = Integer.parseInt(partes[0]);
+				}
+				catch(Exception e) {
+					System.out.println("Number or variable name expected.");
+				}
+			}
+
+			condicion = checkMoveInDir(cant, partes[1]);
+		}
+		if(cond.startsWith("moveDir"))
+		{
+			cond = cond.substring(cond.indexOf('(') + 1, cond.indexOf(')'));
+
+			String[] partes = cond.split(",");
+
+			boolean esVariable = false;
+
+			int cant = 0;
+			Iterator<Tupla> iter = tuplas.iterator();
+			Tupla actual;
+			while(iter.hasNext() && !esVariable) {
+				actual = iter.next();
+				if(actual.nombre.equals(partes[0])){
+					cant = actual.cant;
+					esVariable = true;
+				}
+			}
+			if(!esVariable) {
+				try {
+					cant = Integer.parseInt(partes[0]);
+				}
+				catch(Exception e) {
+					System.out.println("Number or variable name expected.");
+				}
+			}
+
+			condicion = checkMoveInDir(cant, partes[1]);
+		}
+		if(cond.startsWith("put"))
+		{
+			cond = cond.substring(cond.indexOf('(') + 1, cond.indexOf(')'));
+			String[] partes = cond.split(",");
+			partes[1]= partes[1].trim();
+			boolean esVariable = false;
+			int cant = 0;
+			Iterator<Tupla> iter = tuplas.iterator();
+			Tupla actual;
+			while(iter.hasNext() && !esVariable) {
+				actual = iter.next();
+				if(actual.nombre.equals(partes[0])){
+					cant = actual.cant;
+					esVariable = true;
+				}
+			}
+			if(!esVariable) {
+				try {
+					cant = Integer.parseInt(partes[0]);
+				}
+				catch(Exception e) {
+					System.out.println("Number or variable name expected.");
+				}
+			}
+			condicion = checkPut(cant, partes[1]);
+		}
+		if(cond.startsWith("pick"))
+		{
+			cond = cond.substring(cond.indexOf('(') + 1, cond.indexOf(')'));
+			String[] partes = cond.split(",");
+			partes[1]= partes[1].trim();
+			boolean esVariable = false;
+			int cant = 0;
+			Iterator<Tupla> iter = tuplas.iterator();
+			Tupla actual;
+			while(iter.hasNext() && !esVariable) {
+				actual = iter.next();
+				if(actual.nombre.equals(partes[0])){
+					cant = actual.cant;
+					esVariable = true;
+				}
+			}
+			if(!esVariable) {
+				try {
+					cant = Integer.parseInt(partes[0]);
+				}
+				catch(Exception e) {
+					System.out.println("Number or variable name expected.");
+				}
+			}
+			condicion = checkPick(cant, partes[1]);
+		}
+
+
+		return condicion;
 
 	}
 
+	public boolean checkMove(String num)
+	{
+		boolean condicion= false;
+
+		condicion =! world.blockedInRange(world.getPosition().x, world.getPosition().y, Integer.parseInt(num), world.getFacing());
+		return condicion;
+
+	}
+
+	public boolean checkMoveInDir(int cant, String direccion)
+	{
+		boolean condicion= false;
+		int dir=0;
+		if(direccion =="north")
+		{
+			dir = 0;
+		}else if(direccion == "south")
+		{
+			dir = 1;
+		}else if(direccion == "east")
+		{
+			dir = 2;
+		}else if(direccion == "west")
+		{
+			dir = 3;
+		}
+
+		if(direccion=="front"||direccion=="left"||direccion=="right"||direccion=="back")
+		{
+			dir = world.getFacing();
+		}
+
+
+		condicion= !world.blockedInRange(world.getPosition().x, world.getPosition().y, cant, dir);
+		return condicion;
+	}
+	public boolean checkPut(int cant, String partes)
+	{
+		boolean cond = false;
+		if(cant>0) {
+			if(partes.equals("Balloons")) {
+				if(world.getMyBalloons()<cant) {
+					System.out.println("Not enough balloons.");
+				}
+				else {
+					try {
+						world.putBalloons(cant);
+						cond = true;
+					}
+					catch(Exception e) {
+						System.out.println("Jsjsjsj hay un error. F.");
+						cond =false;
+					}
+				}
+			}
+			else if(partes.equals("Chips")){
+				if(world.getMyChips()<cant) {
+					System.out.println("Not enough chips.");
+				}
+				else {
+					try {
+						world.putChips(cant);
+						cond = true;
+					}
+					catch (Exception e) {
+						System.out.println("Jsjsjs tienes un error k gei.");
+						cond = false;
+					}
+				}
+			}
+			else {
+				System.out.println("\"Chips\" or \"Balloons\" expected. Got " + partes);
+			}
+		}
+		return cond;
+	}
+	public boolean checkPick(int cant, String partes)
+	{
+		boolean cond = false;
+
+		if(cant>0) {
+			if(partes.equals("Balloons")) {
+				try {
+					world.grabBalloons(cant);
+					cond = true;
+				}
+				catch(Exception e) {
+					System.out.println("Jsjsjsj hay un error. F.");
+					cond = false;
+				}
+
+			}
+			else if(partes.equals("Chips")){
+				try {
+					world.pickChips(cant);
+					cond = true;
+				}
+				catch (Exception e) {
+					System.out.println("Jsjsjs tienes un error k gei.");
+					cond = false;
+				}
+
+			}
+			else {
+				System.out.println("\"Chips\" or \"Balloons\" expected. Got " + partes);
+			}
+		}
+		return cond;
+
+	}
+
+
+	public boolean facing(String dir)
+	{
+		if(dir.equals("north"))
+		{
+			return world.facingNorth();
+		}else if(dir.equals("south"))
+		{
+			return world.facingSouth();
+		}else if(dir.equals("east"))
+		{
+			return world.facingEast();
+		}else if(dir.equals("west"))
+		{
+			return world.facingWest();
+		}
+		return false;
+
+	}
 }
