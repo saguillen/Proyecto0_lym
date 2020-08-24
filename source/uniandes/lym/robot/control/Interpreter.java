@@ -363,6 +363,54 @@ public class Interpreter   {
 					}
 				}
 			}
+			else if(comando.startsWith("pick")) {
+				comando = comando.substring(comando.indexOf('(') + 1, comando.indexOf(')'));
+				String[] partes = comando.split(",");
+				partes[1]= partes[1].trim();
+				boolean esVariable = false;
+				int cant = 0;
+				Iterator<Tupla> iter = tuplas.iterator();
+				Tupla actual;
+				while(iter.hasNext() && !esVariable) {
+					actual = iter.next();
+					if(actual.nombre.equals(partes[0])){
+						cant = actual.cant;
+						esVariable = true;
+					}
+				}
+				if(!esVariable) {
+					try {
+						cant = Integer.parseInt(partes[0]);
+					}
+					catch(Exception e) {
+						System.out.println("Number or variable name expected.");
+					}
+				}
+				if(cant>0) {
+					if(partes[1].equals("Balloons")) {
+							try {
+								world.grabBalloons(cant);
+							}
+							catch(Exception e) {
+								System.out.println("Jsjsjsj hay un error. F.");
+							}
+						
+					}
+					else if(partes[1].equals("Chips")){
+							try {
+								world.pickChips(cant);
+							}
+							catch (Exception e) {
+								System.out.println("Jsjsjs tienes un error k gei.");
+							}
+						
+					}
+					else {
+						System.out.println("\"Chips\" or \"Balloons\" expected. Got " + partes[1]);
+					}
+				}
+			}
+			
 			//			else if( comando.startsWith(turn))
 			//			Ejemplo
 
