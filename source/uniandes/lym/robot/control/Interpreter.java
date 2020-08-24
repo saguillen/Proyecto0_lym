@@ -2,6 +2,7 @@ package uniandes.lym.robot.control;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.swing.SwingUtilities;
 
@@ -243,19 +244,136 @@ public class Interpreter   {
 				}
 				else{
 					System.out.println("No hay direccion");
+				}
+			}
+			else if(comando.startsWith("face")) {
+				comando = comando.substring(comando.indexOf('(')+1,comando.indexOf(')'));
+				int orientacion = world.getFacing();
+				if(comando.equals("north")) {
+					if(orientacion == 1){
+						world.turnRight();
+						world.turnRight();
 					}
+					else if(orientacion == 2){
+						world.turnRight();
+						world.turnRight();
+						world.turnRight();
+					}
+					else if(orientacion == 3){
+						world.turnRight();
+					} //Salu2.
+				}
+				else if(comando.equals("south")) {
+					if(orientacion == 0){
+						world.turnRight();
+						world.turnRight();
+					}
+					else if(orientacion == 2){
+						world.turnRight();
+					}
+					else if(orientacion == 3){
+						world.turnRight();
+						world.turnRight();
+						world.turnRight();
+					}
+				}
+				else if(comando.equals("east")) {
+					if(orientacion == 0){ 
+						world.turnRight();
+					}
+					else if(orientacion == 3){ 
+						world.turnRight();
+						world.turnRight();
+					}
+					else if(orientacion == 1){ 
+						world.turnRight();
+						world.turnRight();
+						world.turnRight();
+					}
+				}
+				else if(comando.equals("west")) {
+					if(orientacion == 0){
+						world.turnRight();
+						world.turnRight();
+						world.turnRight();
+					}
+					else if(orientacion == 1){
+						world.turnRight();
+
+					}
+					else if(orientacion == 2){
+						world.turnRight();
+						world.turnRight();
+					}
+				}
+				else System.out.println("Expected \"north\", \"south\", \"east\" or \"west\", got " + comando);
+			}
+			else if(comando.startsWith("put")) {
+				comando = comando.substring(comando.indexOf('(') + 1, comando.indexOf(')'));
+				String[] partes = comando.split(",");
+				partes[1]= partes[1].trim();
+				boolean esVariable = false;
+				int cant = 0;
+				Iterator<Tupla> iter = tuplas.iterator();
+				Tupla actual;
+				while(iter.hasNext() && !esVariable) {
+					actual = iter.next();
+					if(actual.nombre.equals(partes[0])){
+						cant = actual.cant;
+						esVariable = true;
+					}
+				}
+				if(!esVariable) {
+					try {
+						cant = Integer.parseInt(partes[0]);
+					}
+					catch(Exception e) {
+						System.out.println("Number or variable name expected.");
+					}
+				}
+				if(cant>0) {
+					if(partes[1].equals("Balloons")) {
+						if(world.getMyBalloons()<cant) {
+							System.out.println("Not enough balloons.");
+						}
+						else {
+							try {
+								world.putBalloons(cant);
+							}
+							catch(Exception e) {
+								System.out.println("Jsjsjsj hay un error. F.");
+							}
+						}
+					}
+					else if(partes[1].equals("Chips")){
+						if(world.getMyChips()<cant) {
+							System.out.println("Not enough chips.");
+						}
+						else {
+							try {
+								world.putChips(cant);
+							}
+							catch (Exception e) {
+								System.out.println("Jsjsjs tienes un error k gei.");
+							}
+						}
+					}
+					else {
+						System.out.println("\"Chips\" or \"Balloons\" expected. Got " + partes[1]);
+					}
+				}
 			}
 			//			else if( comando.startsWith(turn))
-//			Ejemplo
+			//			Ejemplo
 
-//ROBOT_R
-//VARS a, b
-//BEGIN
-//assign(a ,3);
-//assign(b ,1);
-//turn(right);
-//move(b);
-//END
+			//ROBOT_R
+			//VARS a, b
+			//BEGIN
+			//assign(a ,3);
+			//assign(b ,1);
+			//turn(right);
+			//move(b);
+			//END
 			//System.out.println(comando);
 
 
