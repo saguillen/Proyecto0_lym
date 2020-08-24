@@ -410,6 +410,7 @@ public class Interpreter   {
 					}
 				}
 			}
+			else if(comando.startsWith("skip")) continue;
 			
 			//			else if( comando.startsWith(turn))
 			//			Ejemplo
