@@ -24,21 +24,22 @@ public class Interpreter   {
 	 * Robot's world
 	 */
 	private RobotWorldDec world;   
-
+	
+	//Guardaremos las variables en tuplas
 	private class Tupla {
-
+		//Ambos atributos son públicos por facilidad xd
 		String nombre;
 		int cant;
 
 		public Tupla(String nombre){
 			this.nombre = nombre;
 		}
-
+		
 		void sumar(int cantidad) {
 			cant += cantidad;
 		}
 	}
-
+	//Las variables
 	private ArrayList<Tupla> tuplas;
 
 	public Interpreter()
@@ -95,24 +96,25 @@ public class Interpreter   {
 		i  = 0;
 		 **/
 		try	    {
+			//Así detectamos que es la entrada que esperamos
 			if(input.startsWith("ROBOT_R")&&input.contains("BEGIN")&&input.endsWith("END")){
-				String dospartes = input.substring(7);
-				String[] loquehacer = dospartes.split("BEGIN");
-				String[] cmds;
+				String dospartes = input.substring(7); //Substring 7 Para saltar el ROBOT_R
+				String[] loquehacer = dospartes.split("BEGIN"); //Separamos los comandos de las variables
+				String[] cmds; //Los comandos, antes de asignarlos asignaremos las variables
 				if(dospartes.contains("VARS")) {
-					String lineaconvars = loquehacer[0].substring(5);
-					String[] nombresVars = lineaconvars.split(",");
+					String lineaconvars = loquehacer[0].substring(5); //Para saltarnos el VARS y el espacio
+					String[] nombresVars = lineaconvars.split(","); 
 					for(String nombre: nombresVars) {
-						String limp = nombre.replace(" ", "");
+						String limp = nombre.replace(" ", ""); //Para limpiar los espacios 
 						limp=limp.replaceAll("\n", "");
 						nombre = limp;
-						System.out.println(nombre);
-						Tupla var = new Tupla(nombre);
-						tuplas.add(var);
+						//System.out.println(nombre);
+						Tupla var = new Tupla(nombre); //Variable creada
+						tuplas.add(var); //Variable en el arreglo de variables
 					}
 				}
-				cmds = loquehacer[1].split(";");
-				//				System.out.println(cmds[0]);
+				cmds = loquehacer[1].split(";\n"); //Ahora sí los comandos
+				//System.out.println(cmds[0]);
 				metodoCmds(cmds);
 			}
 			else throw new Exception("Unrecognized command");
@@ -176,31 +178,31 @@ public class Interpreter   {
 
 			}
 			if (comando.contains("assign"))
-			{
-				comando = comando.substring(comando.indexOf("(")+1,comando.indexOf(")"));
-				String[] asignar = comando.split(",");
-				//				System.out.println(comando);
-				//				System.out.println("si entra");
+			{ //Para asignar las variables
+				comando = comando.substring(comando.indexOf("(")+1,comando.indexOf(")"));//Solo nos interesa lo que está entre ()
+				String[] asignar = comando.split(","); //asignar[0] es el nombre, asignar[1] es el número
+				//System.out.println(comando);
+				//System.out.println("si entra");
 
 				int numero = Integer.parseInt(asignar[1]);
 
-				if(numero!=0)
+				if(numero!=0) //Asignar un 0 no tiene sentido
 				{
-					boolean esVariable = false;
+					boolean esVariable = false; //Vamos a buscar una variable con el nombre que recibimos
 
-					for(int i = 0; i<tuplas.size() && esVariable==false; i++)
+					for(int i = 0; i<tuplas.size() && !esVariable; i++)
 					{
 						if(tuplas.get(i).nombre.equals(asignar[0]))
-						{
+						{ //Ladies and gentlemen... We got em.
 							tuplas.get(i).sumar(numero);
 							esVariable=true;
 							t = tuplas.get(i);
 						}
 					}
-					if(esVariable==true)
+					if(esVariable)
 					{
 						System.out.println(t.cant+"");
-					}else{
+					}else{ //Si no es una variable no se asigna
 						System.out.println("No es variable declarada");
 					}
 				}
@@ -208,51 +210,62 @@ public class Interpreter   {
 
 
 			}else if (comando.startsWith("move")&&!comando.contains("Dir"))
-			{
-				int numero = 0;
-				comando= comando.substring(comando.indexOf("(")+1,comando.indexOf(")"));
+			{ //El move()
+				int numero = 0; //Que tanto nos vamos a mover
+				comando= comando.substring(comando.indexOf("(")+1,comando.indexOf(")")); //Lo que nos interesa
 
-				boolean esVariable = false;
-
-				for(int i = 0; i< tuplas.size()&&esVariable==false; i++)
+				boolean esVariable = false; //El param puede ser una variable así que hay que buscarla
+				//Buscando la variable
+				for(int i = 0; i< tuplas.size()&&!esVariable; i++)
 				{
 					if(tuplas.get(i).nombre.equals(comando))
 					{
-						numero=tuplas.get(i).cant;
+						numero=tuplas.get(i).cant; //Si es variable tons se mueve la cantidad de la variable
 						esVariable = true;
 					}
 				}
-				if(esVariable==false)
-				{
+				if(!esVariable)
+				{	//Si no es variable solo cambiamos el número a un int. Izi.
 					numero = Integer.parseInt(comando);
 				}
-				world.moveForward(numero);
+				//Con todo hecho, ahora solo nos movemos... Si podemos
+				try {
+					world.moveForward(numero);
+				}
+				catch(Exception e) {
+					System.out.println("No se puede mover en esa dirección");
+				}
 
 			}else if (comando.startsWith("turn"))
-			{
-				comando= comando.substring(comando.indexOf("(")+1,comando.indexOf(")"));
+			{	//El turn()
+				comando= comando.substring(comando.indexOf("(")+1,comando.indexOf(")"));//Lo de antes x3
 				if(comando.equals("right"))
-				{
+				{	//Giras a la derecha? Gira a la derecha!
 					world.turnRight();
 				}
 				else if(comando.equals("left"))
-				{
+				{	//Giras a la izquierda? Gira tres veces a la derecha!
 					world.turnRight();
 					world.turnRight();
 					world.turnRight();
 				}
 				else if(comando.equals("around"))
-				{
+				{	//Quieres dar media vuelta? Adivina qué hacer owo
 					world.turnRight();
 					world.turnRight();
 				}
 				else{
+					//Uh... No sé qué quieres hacer pero probablemente no lo logres girando a la derecha :/
 					System.out.println("No hay direccion");
 				}
 			}
 			else if(comando.startsWith("face")) {
-				comando = comando.substring(comando.indexOf('(')+1,comando.indexOf(')'));
+				//El face()
+				comando = comando.substring(comando.indexOf('(')+1,comando.indexOf(')')); //Lo de antes x4
+				//Para saber cómo mirar hacia donde quieres mirar, hay que saber a dónde estás mirando
 				int orientacion = world.getFacing();
+				//Seguramente había una forma más simple de hacer esto...
+				//Bueno, esta forma funciona así que F
 				if(comando.equals("north")) {
 					if(orientacion == 1){
 						world.turnRight();
@@ -265,7 +278,7 @@ public class Interpreter   {
 					}
 					else if(orientacion == 3){
 						world.turnRight();
-					} //Salu2.
+					} 
 				}
 				else if(comando.equals("south")) {
 					if(orientacion == 0){
@@ -310,34 +323,36 @@ public class Interpreter   {
 						world.turnRight();
 					}
 				}
+				//Eficiencia 1000
 				else System.out.println("Expected \"north\", \"south\", \"east\" or \"west\", got " + comando);
 			}
 			else if(comando.startsWith("put")) {
-				comando = comando.substring(comando.indexOf('(') + 1, comando.indexOf(')'));
-				String[] partes = comando.split(",");
-				partes[1]= partes[1].trim();
-				boolean esVariable = false;
+				//El put()
+				comando = comando.substring(comando.indexOf('(') + 1, comando.indexOf(')')); //Bruh
+				String[] partes = comando.split(","); //Este comando viene por partes
+				partes[1]= partes[1].trim(); //Y hay que limpiar los espacios
+				boolean esVariable = false; //Otra vez vamos a verificar si es variable. Epic.
 				int cant = 0;
-				Iterator<Tupla> iter = tuplas.iterator();
+				Iterator<Tupla> iter = tuplas.iterator();//Pero esta vez con un iterator B)
 				Tupla actual;
 				while(iter.hasNext() && !esVariable) {
 					actual = iter.next();
 					if(actual.nombre.equals(partes[0])){
-						cant = actual.cant;
+						cant = actual.cant; //Si es variable es el valor de la variable
 						esVariable = true;
 					}
 				}
 				if(!esVariable) {
-					try {
+					try {					//Si no es variable es el número que recibimos
 						cant = Integer.parseInt(partes[0]);
 					}
 					catch(Exception e) {
 						System.out.println("Number or variable name expected.");
 					}
 				}
-				if(cant>0) {
+				if(cant>0) { //No tiene sentido poner menos de 0 globos
 					if(partes[1].equals("Balloons")) {
-						if(world.getMyBalloons()<cant) {
+						if(world.getMyBalloons()<cant) { //No podemos poner más de lo que tenemos
 							System.out.println("Not enough balloons.");
 						}
 						else {
@@ -345,12 +360,12 @@ public class Interpreter   {
 								world.putBalloons(cant);
 							}
 							catch(Exception e) {
-								System.out.println("Jsjsjsj hay un error. F.");
+								System.out.println(e.getMessage());
 							}
 						}
 					}
 					else if(partes[1].equals("Chips")){
-						if(world.getMyChips()<cant) {
+						if(world.getMyChips()<cant) {//No podemos poner más de lo que tenemos
 							System.out.println("Not enough chips.");
 						}
 						else {
@@ -358,7 +373,7 @@ public class Interpreter   {
 								world.putChips(cant);
 							}
 							catch (Exception e) {
-								System.out.println("Jsjsjs tienes un error k gei.");
+								System.out.println(e.getMessage());
 							}
 						}
 					}
@@ -368,6 +383,8 @@ public class Interpreter   {
 				}
 			}
 			else if(comando.startsWith("pick")) {
+				//El pick()
+				//Exactamente lo mismo que el método de arriba, solo que lo que se hace cambia
 				comando = comando.substring(comando.indexOf('(') + 1, comando.indexOf(')'));
 				String[] partes = comando.split(",");
 				partes[1]= partes[1].trim();
@@ -391,12 +408,12 @@ public class Interpreter   {
 					}
 				}
 				if(cant>0) {
-					if(partes[1].equals("Balloons")) {
+					if(partes[1].equals("Balloons")) { //Ya no hay verificación
 						try {
 							world.grabBalloons(cant);
 						}
 						catch(Exception e) {
-							System.out.println("Jsjsjsj hay un error. F.");
+							System.out.println(e.getMessage());
 						}
 
 					}
@@ -405,7 +422,7 @@ public class Interpreter   {
 							world.pickChips(cant);
 						}
 						catch (Exception e) {
-							System.out.println("Jsjsjs tienes un error k gei.");
+							System.out.println(e.getMessage());
 						}
 
 					}
@@ -414,7 +431,7 @@ public class Interpreter   {
 					}
 				}
 			}
-			else if(comando.startsWith("skip")) continue;
+			else if(comando.startsWith("skip")) continue; //El skip no hace nada
 
 			else if(comando.startsWith("moveDir"))
 			{
@@ -615,12 +632,12 @@ public class Interpreter   {
 				boolean apunta = facing(comando);
 				//				comando = apunta;
 			}
-			else if(comando.startsWith("{")&&comando.startsWith("}"))
+			else if(comando.startsWith("{")&&comando.endsWith("}"))
 			{
 				try{
 					comando = comando.substring(comando.indexOf('{') + 1, comando.indexOf('}'));
 					String[] partes = comando.split(";");
-					while(checkCond(partes[1],partes))
+					while(checkCond(partes[0]))
 					{
 						metodoCmds(partes);
 					}
@@ -631,10 +648,24 @@ public class Interpreter   {
 				}
 
 			}
+			else if(comando.startsWith("[")&&comando.endsWith("]")) {
+				try{
+					comando = comando.substring(comando.indexOf('[') + 1, comando.indexOf(']'));
+					String[] partes = comando.split(";");
+					if(checkCond(partes[0]))
+					{
+						metodoCmds(partes);
+					}
+				}
+				catch (Exception e)
+				{
+					e.getMessage();
+				}
+			}
 		}
 	}
 
-	public boolean checkCond(String cond, String[] comandos)
+	public boolean checkCond(String cond)
 	{
 		boolean condicion= false;
 
@@ -765,11 +796,7 @@ public class Interpreter   {
 
 	public boolean checkMove(String num)
 	{
-		boolean condicion= false;
-
-		condicion =! world.blockedInRange(world.getPosition().x, world.getPosition().y, Integer.parseInt(num), world.getFacing());
-		return condicion;
-
+		return !world.blockedInRange(world.getPosition().x, world.getPosition().y, Integer.parseInt(num), world.getFacing());
 	}
 
 	public boolean checkMoveInDir(int cant, String direccion)
