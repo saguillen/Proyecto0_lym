@@ -434,7 +434,7 @@ public class Interpreter   {
 			else if(comando.startsWith("skip")) continue; //El skip no hace nada
 
 			else if(comando.startsWith("moveDir"))
-			{
+			{  //Hasta cierto punto es el mismo move()
 				comando = comando.substring(comando.indexOf('(') + 1, comando.indexOf(')'));
 
 				String[] partes = comando.split(",");
@@ -461,13 +461,14 @@ public class Interpreter   {
 				}
 				if(cant>0) {
 					if(partes[1].equals("front")) {
-
+						//Si se mueve hacia el frente solo se mueve xd
 						world.moveForward(cant);
 
 
 					}
 					else if(partes[1].equals("right"))
-					{
+					{	//Para cualquier otro caso gira, se mueve y luego vuelve a girar para quedar en su
+						//lado original
 						world.turnRight();
 						world.moveForward(cant);
 						world.turnRight();
